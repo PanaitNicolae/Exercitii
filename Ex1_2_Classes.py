@@ -10,10 +10,10 @@ class Driver:
         return webdriver.Chrome(Driver.PATH)
 
 
-class Ex1(Driver):
+class Ex12(Driver):
 
     def last_release_function(self):
-        driver = Ex1.get_driver(self)
+        driver = Ex12.get_driver(self)
         action = ActionChains(driver)
         driver.get("https://www.python.org/")
         download_button_path = "//li[@id = 'downloads']"
@@ -33,11 +33,8 @@ class Ex1(Driver):
         release_date = driver.find_element_by_xpath(release_date_path).text
         return release_version + " " + release_date
 
-
-class Ex2(Driver):
-
     def number_of_examples(self, test_number):
-        driver = Ex1.get_driver(self)
+        driver = Ex12.get_driver(self)
         driver.get("https://www.python.org/")
         search_bar_path = "//input[@id ='id-search-field']"
         go_button_path = "//button[@id='submit']"
@@ -61,8 +58,9 @@ class Ex2(Driver):
             print("Number of examples is ", examples_number, ", different than", test_number, ".")
 
 
-ex1 = Ex1()
-print(ex1.last_release_function())
 
-ex2 = Ex2()
-ex2.number_of_examples(5)
+ex1 = Ex12()
+print(ex1.last_release_function())
+ex1.number_of_examples(5)
+
+time.sleep(3)
