@@ -65,6 +65,4 @@ ex1 = Ex1()
 print(ex1.last_release_function())
 
 ex2 = Ex2()
-print(ex2.number_of_examples(5))
-
-time.sleep(3)
+ex2.number_of_examples(5)
