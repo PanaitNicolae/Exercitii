@@ -20,11 +20,3 @@ search_bar.send_keys("decorator")
 go_button.click()
 driver.find_element(By.XPATH, first_result_link_path).click()
 driver.find_element(By.XPATH, examples_link_path).click()
-
-# search = driver.find_element(By.XPATH, "//ul[@class='list-recent-events menu']/li[1]/h3/a").click()
-# # driver.get(search)
-# search = driver.find_element(By.XPATH, "//div[@class='contents topic']/ul/li/a[text()='Examples']").get_attribute("href")
-# driver.get(search)
-# # driver.close()
-
-
