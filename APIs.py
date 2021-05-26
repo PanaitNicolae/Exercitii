@@ -7,14 +7,14 @@ def print_jokes(jokes):
         for elem in jokes:
             for i, j in elem.items():
                 if i == "setup":
-                    print (no,".",j)
+                    print (no, ". ", j, sep = "")
                 elif i == "punchline":
-                    print("       ",j)
+                    print("       ", j)
             no += 1
     else:
         for i, j in jokes.items():
             if i == "setup":
-                print(1, ".", j)
+                print(1, ". ", j, sep = "")
             elif i == "punchline":
                 print("     ", j)
     print()
