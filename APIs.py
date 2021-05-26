@@ -29,6 +29,7 @@ def check_jokes_type(jokes):
                 return 0
     print("Al jokes have the type: ", type)
 
+
 def display_odd_id(jokes):
     print("Odd id jokes are:")
     for elem in jokes:
@@ -36,12 +37,14 @@ def display_odd_id(jokes):
             if i == "id" and j % 2 != 0:
                 print_jokes(elem)
 
+
 def display_even_id(jokes):
     print("Even id jokes are:")
     for elem in jokes:
         for i, j in elem.items():
             if i == "id" and j % 2 == 0:
                 print_jokes(elem)
+
 
 random_joke = requests.get("https://official-joke-api.appspot.com/random_joke")
 ten_random_jokes = requests.get("https://official-joke-api.appspot.com/random_ten")
