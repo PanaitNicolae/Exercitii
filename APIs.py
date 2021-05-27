@@ -1,57 +1,65 @@
 import requests
 
+common_link = "https://official-joke-api.appspot.com/"
+
+
+def get_random_joke():
+    return requests.get(common_link+"random_joke").json()
+
+
+def get_ten_random_jokes():
+    return requests.get(common_link+"random_ten").json()
+
+
+def get_jokes_by_type():
+    return requests.get(common_link+"jokes/programming/ten").json()
+
 
 def print_jokes(jokes):
     no = 1
     if isinstance(jokes, list):
         for elem in jokes:
-            for i, j in elem.items():
-                if i == "setup":
-                    print (no, ". ", j, sep = "")
-                elif i == "punchline":
-                    print("       ", j)
+            print(f"{no}. {elem['setup']}\n     {elem['punchline']}")
             no += 1
     else:
-        for i, j in jokes.items():
-            if i == "setup":
-                print(1, ". ", j, sep = "")
-            elif i == "punchline":
-                print("     ", j)
-    print()
+        print(f"1. {jokes['setup']}\n     {jokes['punchline']}")
 
 
-def check_jokes_type(jokes):
-    type = jokes[0]["type"]
+
+def check_jokes_type(jokes, type):
+    no = 0
     for elem in jokes:
-        for i, j in elem.items():
-            if i == "type" and j != type:
-                print("Not all jokes are the same type!")
-                return 0
-    print("Al jokes have the type: ", type)
+        if elem["type"] == type:
+            no += 1
+    interpret_jokes_type(jokes,no, type)
 
 
-def display_odd_id(jokes):
-    print("Odd id jokes are:")
+def interpret_jokes_type(jokes, no, type):
+    if no == len(jokes):
+        print("All jokes have the type:", type)
+    elif no > 0:
+        print(no, "jokes have the type", type)
+    else:
+        print("No jokes of this type -", type)
+
+
+def print_odd_even_id(jokes, mode):
+    """
+        mode = 1 => print ODD jokes
+        mode = 0 => print EVEN jokes
+    """
+    if mode:
+        print("Odd id jokes are:")
+    else:
+        print("Even id jokes are:")
     for elem in jokes:
-        for i, j in elem.items():
-            if i == "id" and j % 2 != 0:
-                print_jokes(elem)
+        if elem["id"] % 2 != 0 and mode == 1:
+            print_jokes(elem)
+        elif elem["id"] % 2 == 0 and mode == 0:
+            print_jokes(elem)
 
 
-def display_even_id(jokes):
-    print("Even id jokes are:")
-    for elem in jokes:
-        for i, j in elem.items():
-            if i == "id" and j % 2 == 0:
-                print_jokes(elem)
-
-
-random_joke = requests.get("https://official-joke-api.appspot.com/random_joke")
-ten_random_jokes = requests.get("https://official-joke-api.appspot.com/random_ten")
-jokes_by_type = requests.get("https://official-joke-api.appspot.com/jokes/programming/ten")
-
-# print_jokes(random_joke.json())
-# print_jokes(ten_random_jokes.json())
-# check_jokes_type(jokes_by_type.json())
-display_odd_id(ten_random_jokes.json())
-display_even_id(ten_random_jokes.json())
+# print_jokes(get_random_joke())
+# print_jokes(get_ten_random_jokes())
+# check_jokes_type(get_jokes_by_type(), "programming")
+# print_odd_even_id(get_ten_random_jokes(), 1)
