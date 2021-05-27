@@ -40,7 +40,7 @@ def interpret_jokes_type(jokes, no, type):
     elif no > 0:
         print(no, "jokes have the type", type)
     else:
-        print("No jokes of this type -", type)
+        raise Exception("No jokes of this type!")
 
 
 def print_odd_even_id(jokes, mode):
@@ -61,5 +61,5 @@ def print_odd_even_id(jokes, mode):
 
 # print_jokes(get_random_joke())
 # print_jokes(get_ten_random_jokes())
-# check_jokes_type(get_jokes_by_type(), "programming")
+check_jokes_type(get_jokes_by_type(), "progrming")
 # print_odd_even_id(get_ten_random_jokes(), 1)
