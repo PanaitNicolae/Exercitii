@@ -60,13 +60,28 @@ class CloudCtx(JsonManipulator):
         self.description = self.get_description(hcloudCtx_attributes)
         self.name_alias = self.get_name_alias(hcloudCtx_attributes)
         self.ctx_profile_name = self.get_ctx_profile_name(hcloudCtx_attributes)
+        self.reference = HealthInst()
+
+    def retrieve(self, dict):
+        hcloudCtx_attributes = dict["hcloudCtx"]["attributes"]
+        self.name = hcloudCtx_attributes["name"]
+
 
 
     def display_information(self):
         print(f"Name: {self.name}\nTenant name: {self.tenant_name}\nDescription: {self.description}\nName alias: {self.name_alias}\nCtx profile name: {self.ctx_profile_name}")
 
+    def display_name(self):
+        return self.name
 
-class HealthInst(CloudCtx):
+    def display_tenant_name(self):
+        return self.tenant_name
+
+    def display_current_health(self):
+        return self.reference.display_health()
+
+
+class HealthInst(JsonManipulator):
     def __init__(self):
         self.current_health = self.get_current_health(health_attributes)
         self.max_sev = self.get_maxsev(health_attributes)
@@ -82,6 +97,17 @@ class HealthInst(CloudCtx):
 
 
 a = CloudCtx()
+b = CloudCtx()
+c = CloudCtx()
 # a.display_information()
-b = HealthInst()
-b.display_health()
+print(a.display_name(), a.display_tenant_name(), end = ' ')
+a.display_current_health()
+
+print(a.display_name(), a.display_tenant_name(), end = ' ')
+a.display_current_health()
+
+print(a.display_name(), a.display_tenant_name(), end = ' ')
+a.display_current_health()
+
+print(a.display_name(), a.display_tenant_name(), end = ' ')
+a.display_current_health()
