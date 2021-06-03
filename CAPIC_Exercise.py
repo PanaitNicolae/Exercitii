@@ -40,9 +40,13 @@ class HealthInst(JsonManipulator):
 
 
     def retrieve(self, dict):
-        health_attributes = dict["hcloudCtx"]["children"][0]["healthInst"]["attributes"]
-        self.current_health = health_attributes["cur"]
-        self.max_sev = health_attributes["maxSev"]
+        if len(dict["hcloudCtx"]["children"]) == 0:
+            self.current_health = 0
+            self.max_sev = "-"
+        else:
+            health_attributes = dict["hcloudCtx"]["children"][0]["healthInst"]["attributes"]
+            self.current_health = health_attributes["cur"]
+            self.max_sev = health_attributes["maxSev"]
 
 
     def display_health(self):
@@ -69,6 +73,6 @@ for i in CloudCtx_obj_list:
     i.display_information()
     print("\n")
 
-
+print(CloudCtx.track_number)
 # a.display_information()
 
