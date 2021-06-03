@@ -2,89 +2,44 @@ import json
 with open("CAPIC_RESPONSE") as capic_response_json:
     capic_response = json.load(capic_response_json)
 
-hcloudCtx_attributes = capic_response["imdata"][0]["hcloudCtx"]["attributes"]
-health_attributes = capic_response["imdata"][0]["hcloudCtx"]["children"][0]["healthInst"]["attributes"]
-
+dict_list = capic_response["imdata"]
 
 
 class JsonManipulator:
-    def get_name(self, hcloudCtx_attributes):
-        name = hcloudCtx_attributes["name"]
-        if name == "":
-            name = "-"
-        return name
-
-
-    def get_tenant_name(self, hcloudCtx_attributes):
-        tenant_name = hcloudCtx_attributes["tenantName"]
-        if tenant_name == "":
-            tenant_name = "-"
-        return tenant_name
-
-
-    def get_description(self, hcloudCtx_attributes):
-        description = hcloudCtx_attributes["description"]
-        if description == "":
-            description = "-"
-        return description
-
-
-    def get_name_alias(self, hcloudCtx_attributes):
-        name_alias = hcloudCtx_attributes["nameAlias"]
-        if name_alias == "":
-            name_alias = "-"
-        return name_alias
-
-
-    def get_ctx_profile_name(self, hcloudCtx_attributes):
-        ctx_profile_name = hcloudCtx_attributes["ctxProfileName"]
-        if ctx_profile_name == "":
-            ctx_profile_name = "-"
-        return ctx_profile_name
-
-
-    def get_current_health(self, health_attributes):
-        current_health = health_attributes["cur"]
-        return current_health
-
-
-    def get_maxsev(self, health_attrbutes):
-        max_sev = health_attrbutes["maxSev"]
-        return max_sev
+    pass
 
 
 class CloudCtx(JsonManipulator):
     def __init__(self):
-        self.name = self.get_name(hcloudCtx_attributes)
-        self.tenant_name = self.get_tenant_name(hcloudCtx_attributes)
-        self.description = self.get_description(hcloudCtx_attributes)
-        self.name_alias = self.get_name_alias(hcloudCtx_attributes)
-        self.ctx_profile_name = self.get_ctx_profile_name(hcloudCtx_attributes)
+        self.name = None
+        self.tenant_name = None
+        self.description = None
+        self.name_alias = None
+        self.ctx_profile_name = None
         self.reference = HealthInst()
 
     def retrieve(self, dict):
         hcloudCtx_attributes = dict["hcloudCtx"]["attributes"]
-        self.name = hcloudCtx_attributes["name"]
-
-
+        self.name = hcloudCtx_attributes["name"] if hcloudCtx_attributes["name"] != "" else "-"
+        self.tenant_name = hcloudCtx_attributes["tenantName"] if hcloudCtx_attributes["tenantName"] !="" else "-"
+        self.description = hcloudCtx_attributes["description"] if hcloudCtx_attributes["description"] != "" else "-"
+        self.name_alias = hcloudCtx_attributes["nameAlias"] if hcloudCtx_attributes["nameAlias"] !="" else "-"
+        self.ctx_profile_name = hcloudCtx_attributes["ctxProfileName"] if hcloudCtx_attributes["ctxProfileName"] != "" else "-"
 
     def display_information(self):
         print(f"Name: {self.name}\nTenant name: {self.tenant_name}\nDescription: {self.description}\nName alias: {self.name_alias}\nCtx profile name: {self.ctx_profile_name}")
 
-    def display_name(self):
-        return self.name
-
-    def display_tenant_name(self):
-        return self.tenant_name
-
-    def display_current_health(self):
-        return self.reference.display_health()
-
 
 class HealthInst(JsonManipulator):
     def __init__(self):
-        self.current_health = self.get_current_health(health_attributes)
-        self.max_sev = self.get_maxsev(health_attributes)
+        self.current_health = None
+        self.max_sev = None
+
+
+    def retrieve(self, dict):
+        health_attributes = dict["hcloudCtx"]["children"][0]["healthInst"]["attributes"]
+        self.current_health = health_attributes["cur"]
+        self.max_sev = health_attributes["maxSev"]
 
 
     def display_health(self):
@@ -94,20 +49,16 @@ class HealthInst(JsonManipulator):
             print("Healthy")
 
 
+CloudCtx_obj_list = []
+for i in dict_list:
+    obj = CloudCtx()
+    obj.retrieve(i)
+    obj.reference.retrieve(i)
+    CloudCtx_obj_list.append(obj)
 
+for i in CloudCtx_obj_list:
+    i.display_information()
+    i.reference.display_health()
+    print("\n")
 
-a = CloudCtx()
-b = CloudCtx()
-c = CloudCtx()
 # a.display_information()
-print(a.display_name(), a.display_tenant_name(), end = ' ')
-a.display_current_health()
-
-print(a.display_name(), a.display_tenant_name(), end = ' ')
-a.display_current_health()
-
-print(a.display_name(), a.display_tenant_name(), end = ' ')
-a.display_current_health()
-
-print(a.display_name(), a.display_tenant_name(), end = ' ')
-a.display_current_health()
