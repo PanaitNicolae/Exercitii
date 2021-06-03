@@ -10,6 +10,7 @@ class JsonManipulator:
 
 
 class CloudCtx(JsonManipulator):
+    track_number = 0
     def __init__(self):
         self.name = None
         self.tenant_name = None
@@ -17,6 +18,7 @@ class CloudCtx(JsonManipulator):
         self.name_alias = None
         self.ctx_profile_name = None
         self.reference = HealthInst()
+        CloudCtx.track_number += 1
 
     def retrieve(self, dict):
         hcloudCtx_attributes = dict["hcloudCtx"]["attributes"]
@@ -27,7 +29,8 @@ class CloudCtx(JsonManipulator):
         self.ctx_profile_name = hcloudCtx_attributes["ctxProfileName"] if hcloudCtx_attributes["ctxProfileName"] != "" else "-"
 
     def display_information(self):
-        print(f"Name: {self.name}\nTenant name: {self.tenant_name}\nDescription: {self.description}\nName alias: {self.name_alias}\nCtx profile name: {self.ctx_profile_name}")
+        print(f"Name: {self.name}\nTenant name: {self.tenant_name}\nDescription: {self.description}\nName alias: {self.name_alias}\nCtx profile name: {self.ctx_profile_name} \nHealth: {self.reference.current_health} ")
+
 
 
 class HealthInst(JsonManipulator):
@@ -49,6 +52,11 @@ class HealthInst(JsonManipulator):
             print("Healthy")
 
 
+def sort_func(obj_list):
+    return int(obj_list.reference.current_health)
+
+
+
 CloudCtx_obj_list = []
 for i in dict_list:
     obj = CloudCtx()
@@ -56,9 +64,11 @@ for i in dict_list:
     obj.reference.retrieve(i)
     CloudCtx_obj_list.append(obj)
 
+CloudCtx_obj_list.sort(key = sort_func, reverse = False)
 for i in CloudCtx_obj_list:
     i.display_information()
-    i.reference.display_health()
     print("\n")
 
+
 # a.display_information()
+
