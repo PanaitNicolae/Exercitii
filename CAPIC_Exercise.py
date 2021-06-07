@@ -1,18 +1,40 @@
 import json
 import time
+import argparse
 from datetime import datetime
-with open("CAPIC_RESPONSE") as capic_response_json:
+
+parser = argparse.ArgumentParser(description="CAPIC EXERCISE")
+parser.add_argument("json_file")
+arg = parser.parse_args()
+
+with open(arg.json_file) as capic_response_json:
     capic_response = json.load(capic_response_json)
 
 dict_list = capic_response["imdata"]
 
 
+def sort_cur_low_high(obj_list):
+    return int(obj_list.reference.current_health)
+
+def sort_time_high_low(obj_list):
+    return datetime.strptime(obj_list.modTs, "%d-%m-%Y, %H:%M:%S %p")
+
+
 class JsonManipulator:
-    pass
+    @staticmethod
+    def sort_by_health(obj_list):
+        obj_list.sort(key = sort_cur_low_high, reverse = False)
+        return obj_list
+
+    @staticmethod
+    def sort_by_time(obj_list):
+        obj_list.sort(key=sort_time_high_low, reverse=True)
+        return obj_list
 
 
 class CloudCtx(JsonManipulator):
     track_number = 0
+
     def __init__(self):
         self.name = None
         self.tenant_name = None
@@ -23,13 +45,15 @@ class CloudCtx(JsonManipulator):
         self.reference = HealthInst()
         CloudCtx.track_number += 1
 
-    def format_str(self, str, replace_with="-"):
+    @staticmethod
+    def format_str(str, replace_with="-"):
         if str == "":
             str = replace_with
         return str
 
-    def format_time(self,time_str, type = "%Y-%m-%dT%H:%M:%S.%f%z"):
-        time_obj = datetime.strptime(time_str, type)
+    @staticmethod
+    def format_time(time_str, format_type = "%Y-%m-%dT%H:%M:%S.%f%z"):
+        time_obj = datetime.strptime(time_str, format_type)
         time_string = datetime.strftime(time_obj, "%d-%m-%Y, %H:%M:%S %p")
         return time_string
 
@@ -41,12 +65,16 @@ class CloudCtx(JsonManipulator):
         name_alias = self.format_str(hcloudCtx_attributes["nameAlias"])
         ctx_profile_name = self.format_str(hcloudCtx_attributes["ctxProfileName"])
         modTs = self.format_time(hcloudCtx_attributes["modTs"])
+
         self.name = name
         self.tenant_name = tenant_name
         self.description = description
         self.name_alias = name_alias
         self.ctx_profile_name = ctx_profile_name
         self.modTs = modTs
+        self.reference.retrieve_healthInst_info(dict)
+
+
 
     def display_information(self):
         print(f"Name: {self.name}\
@@ -79,29 +107,18 @@ class HealthInst(JsonManipulator):
             print("Healthy")
 
 
-def sort_cur_low_high(obj_list):
-    return int(obj_list.reference.current_health)
-
-def sort_time_high_low(obj_list):
-    return obj_list.modTs
-
-
 CloudCtx_obj_list = []
 for i in dict_list:
     obj = CloudCtx()
     obj.retrieve_hcloudCtx_info(i)
-    obj.reference.retrieve_healthInst_info(i)
     CloudCtx_obj_list.append(obj)
 
-CloudCtx_obj_list.sort(key = sort_cur_low_high, reverse = False)
-for i in CloudCtx_obj_list:
+list_sorted_by_health = CloudCtx.sort_by_health(CloudCtx_obj_list)
+for i in list_sorted_by_health:
     i.display_information()
     print("\n")
 
-
-CloudCtx_obj_list.sort(key = sort_time_high_low, reverse = True)
-for i in CloudCtx_obj_list:
+list_sorted_by_time = CloudCtx.sort_by_time(CloudCtx_obj_list)
+for i in list_sorted_by_time:
     i.display_information()
     print("\n")
-
-
