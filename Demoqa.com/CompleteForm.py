@@ -1,13 +1,13 @@
 from Driver import *
 import time
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import Select
 from Navigate import *
 from cProfile import label
 import types
 
 
 class CompleteForm(Driver):
-    
     
     def get_labels(self):
         generic_xpath = "//div[(contains(@id, 'wrapper') or contains(@id, 'Wrapper'))]"
@@ -35,22 +35,40 @@ class CompleteForm(Driver):
         print(dict(zip(labels, types)))
         return dict(zip(labels, types))
 
+
     def complete(self, data_dict):
-        generic_xpath = "//div[(contains(@id, 'wrapper') or contains(@id, 'Wrapper')) and .//label[text()='{}']]//input"
+        generic_xpath = "//div[(contains(@id, 'wrapper') or contains(@id, 'Wrapper')) and .//label[text()='{}']]"
         labels_types_dict = self.get_labels()
         
-        for i in labels_types_dict.keys():
-            element = self._driver().find_elements_by_xpath(generic_xpath.format(i))
+        for i in data_dict.keys():
+            element = self._driver().find_elements_by_xpath((generic_xpath + "//input").format(i))
+
+            if "Date" in i:
+                ymd_list = data_dict[i].split()
+                self.set_date(ymd_list[0], ymd_list[1], ymd_list[2])   
+                
+            elif i == "State and City":
+                self.select_state_city(data_dict[i][0], data_dict[i][1])
+                
+            elif labels_types_dict[i] == "text":
+                if len(element) == 2:
+                    element[0].send_keys(data_dict[i][0])
+                    element[1].send_keys(data_dict[i][1])
+                else:
+                    element[0].send_keys(data_dict[i])
             
-            if labels_types_dict[i] == "text":
-                if i == "Name":
-                    element[0].send_keys(data_dict["FirstName"])
-                    element[1].send_keys(data_dict["LastName"])
+            elif labels_types_dict[i] == "radio":
+                if data_dict[i] == True:
+                    self.check_radio(i)
+            
+            elif labels_types_dict[i] == "checkbox":
+                if data_dict[i] == True:
+                    self.check_box(i)
+                    
+            elif labels_types_dict[i] == "textarea":
+                element2 = self._driver().find_element_by_xpath((generic_xpath + "//textarea").format(i))
+                element2.send_keys(data_dict[i])
                 
-                elif i == "Email":
-                    element.send_keys(data_dict[i])
-                
-                # elif i == ""
 
 
     def set_date(self, year, month, day):
@@ -79,7 +97,48 @@ class CompleteForm(Driver):
          choose_day = self._driver().find_element_by_xpath(choose_day_xpath.format(day, month))
          choose_day.click()
          
-         
+    
+    def select_state_city(self, state, city):
+        state_xpath = "//div[@id='state']//input"
+        city_xpath = "//div[@id='city']//input"
+        choose_state_xpath = "//div[@id='state']//div[contains(text(), '{}')]"
+        choose_city_xpath = "//div[@id='city']//div[contains(text(), '{}')]"
+        action = ActionChains(self._driver())
+        
+        self._driver().execute_script("window.scrollTo(0, 520)") 
+        
+        state_element = self._driver().find_element_by_xpath(state_xpath)
+        action.click(state_element).perform()
+        time.sleep(0.2)
+        
+        try:
+            choose_state = self._driver().find_element_by_xpath(choose_state_xpath.format(state))
+            choose_state.click()
+        except:
+            raise Exception("Wrong state!")
+        
+        city_element = self._driver().find_element_by_xpath(city_xpath)
+        action.click(city_element).perform()
+        time.sleep(0.2)
+        
+        try:
+            choose_city = self._driver().find_element_by_xpath(choose_city_xpath.format(city))
+            choose_city.click()
+        except:
+            raise Exception("Wrong City!")
+        
+    def check_radio(self, label):
+        generic_xpath = "//div[(contains(@id, 'wrapper') or contains(@id, 'Wrapper'))]//div[./label[text()='{}']]//input"
+        action = ActionChains(self._driver())  
+        radio = self._driver().find_element_by_xpath(generic_xpath.format(label))
+        action.click(radio).perform()
+        
+    def check_box(self, label):
+        generic_xpath = "//div[(contains(@id, 'wrapper') or contains(@id, 'Wrapper'))]//div[./label[text()='{}']]//input"
+        action = ActionChains(self._driver())  
+        box = self._driver().find_element_by_xpath(generic_xpath.format(label))
+        action.click(box).perform() 
+    
     def upload(self):
         upload_button_xpath = "//input[@id='uploadPicture']"
         upload = self._driver().find_element_by_xpath(upload_button_xpath)
